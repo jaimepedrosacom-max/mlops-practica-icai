@@ -3,3 +3,8 @@ pandas==2.2.2
 numpy==1.26.4
 dvc==3.32.0
 mlflow
+joblib
+matplotlib
+seaborn
+pyyaml
+dagshub
