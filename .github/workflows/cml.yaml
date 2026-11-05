@@ -1,4 +1,5 @@
 name: MLOps with CML
+
 on: [push, pull_request]
 
 jobs:
@@ -54,21 +55,20 @@ jobs:
         with:
           python-version: '3.11'
 
-      - id: 'auth'
-        name: Authenticate to Google Cloud
-        uses: 'google-github-actions/auth@v2'
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
         with:
           credentials_json: '${{ secrets.GCP_SA_KEY }}'
 
       - name: Set up gcloud CLI and kubectl
-        uses: 'google-github-actions/setup-gcloud@v2'
+        uses: google-github-actions/setup-gcloud@v2
         with:
           version: 'latest'
           install_components: 'gke-gcloud-auth-plugin'
 
       - name: Get GKE credentials
         run: |
-          gcloud container clusters get-credentials ${{ vars.GKE_CLUSTER }} --zone ${{ vars.GKE_ZONE }} --project ${{ vars.GCP_PROJECT_ID }}
+          gcloud container clusters get-credentials mlops-gke-cluster --zone us-central1-a --project ing-modelos-icai-2026
 
       - name: DVC Pull
         env:
@@ -90,13 +90,13 @@ jobs:
 
       - name: Build and Push API Docker Image
         run: |
-          docker build -t gcr.io/${{ vars.GCP_PROJECT_ID }}/mlops-api:latest .
-          docker push gcr.io/${{ vars.GCP_PROJECT_ID }}/mlops-api:latest
+          docker build -t gcr.io/ing-modelos-icai-2026/mlops-api:latest .
+          docker push gcr.io/ing-modelos-icai-2026/mlops-api:latest
 
       - name: Build and Push Web Docker Image
         run: |
-          docker build -t gcr.io/${{ vars.GCP_PROJECT_ID }}/mlops-web:latest -f Dockerfile.web .
-          docker push gcr.io/${{ vars.GCP_PROJECT_ID }}/mlops-web:latest
+          docker build -t gcr.io/ing-modelos-icai-2026/mlops-web:latest -f Dockerfile.web .
+          docker push gcr.io/ing-modelos-icai-2026/mlops-web:latest
 
       - name: Deploy to GKE
         run: |
