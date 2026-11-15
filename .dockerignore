@@ -1,0 +1,11 @@
+.git
+.github
+.venv
+.dvc/cache
+.dvc/tmp
+mlruns
+mlflow.db
+__pycache__
+gha-creds-*.json
+*.json
+!mlflow_metrics.json

@@ -17,5 +17,6 @@ spec:
       containers:
       - name: mlops-api
         image: gcr.io/ing-modelos-icai-2026/mlops-api:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000

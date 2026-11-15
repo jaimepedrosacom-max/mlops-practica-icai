@@ -60,15 +60,26 @@ jobs:
         with:
           credentials_json: '${{ secrets.GCP_SA_KEY }}'
 
-      - name: Set up gcloud CLI and kubectl
+      - name: Set up gcloud CLI
         uses: google-github-actions/setup-gcloud@v2
-        with:
-          version: 'latest'
-          install_components: 'gke-gcloud-auth-plugin'
 
+      # Genera un kubeconfig con token de acceso a partir de la autenticación anterior.
+      # No depende de gke-gcloud-auth-plugin (origen del fallo de credenciales en kubectl).
       - name: Get GKE credentials
+        uses: google-github-actions/get-gke-credentials@v2
+        with:
+          cluster_name: mlops-gke-cluster
+          location: us-central1-a
+          project_id: ing-modelos-icai-2026
+
+      - name: Check cluster access
         run: |
-          gcloud container clusters get-credentials mlops-gke-cluster --zone us-central1-a --project ing-modelos-icai-2026
+          kubectl config current-context
+          kubectl get nodes
+          if [ "$(kubectl auth can-i create deployments)" != "yes" ]; then
+            echo "::error::La service account no puede crear Deployments. Dale el rol 'Kubernetes Engine Developer' o 'Kubernetes Engine Admin' en IAM."
+            exit 1
+          fi
 
       - name: DVC Pull
         env:
@@ -104,3 +115,16 @@ jobs:
           kubectl apply -f api-service.yaml
           kubectl apply -f web-deployment.yaml
           kubectl apply -f web-service.yaml
+          # Con la etiqueta :latest el manifiesto no cambia, así que forzamos que se descarguen las imágenes nuevas
+          kubectl rollout restart deployment/mlops-api-deployment deployment/mlops-web-deployment
+          kubectl rollout status deployment/mlops-api-deployment --timeout=300s
+          kubectl rollout status deployment/mlops-web-deployment --timeout=300s
+          kubectl get pods,svc
+
+      - name: Debug on failure
+        if: failure()
+        run: |
+          kubectl get pods -o wide || true
+          kubectl describe pods || true
+          kubectl logs deployment/mlops-api-deployment --tail=50 || true
+          kubectl logs deployment/mlops-web-deployment --tail=50 || true
