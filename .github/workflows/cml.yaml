@@ -42,6 +42,8 @@ jobs:
 
   deploy-to-gke:
     needs: train-and-report
+    # Desactivado: el clúster GKE se ha borrado. Para reactivarlo, crea el clúster y cambia a "if: true" (o elimina esta línea).
+    if: false
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
