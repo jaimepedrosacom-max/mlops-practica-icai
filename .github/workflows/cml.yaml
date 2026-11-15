@@ -68,9 +68,9 @@ jobs:
       - name: Get GKE credentials
         uses: google-github-actions/get-gke-credentials@v2
         with:
-          cluster_name: mlops-gke-cluster
-          location: us-central1-a
-          project_id: ing-modelos-icai-2026
+          cluster_name: ${{ vars.GKE_CLUSTER }}
+          location: ${{ vars.GKE_ZONE }}
+          project_id: ${{ vars.GCP_PROJECT_ID }}
 
       - name: Check cluster access
         run: |
@@ -101,13 +101,13 @@ jobs:
 
       - name: Build and Push API Docker Image
         run: |
-          docker build -t gcr.io/ing-modelos-icai-2026/mlops-api:latest .
-          docker push gcr.io/ing-modelos-icai-2026/mlops-api:latest
+          docker build -t gcr.io/${{ vars.GCP_PROJECT_ID }}/mlops-api:latest .
+          docker push gcr.io/${{ vars.GCP_PROJECT_ID }}/mlops-api:latest
 
       - name: Build and Push Web Docker Image
         run: |
-          docker build -t gcr.io/ing-modelos-icai-2026/mlops-web:latest -f Dockerfile.web .
-          docker push gcr.io/ing-modelos-icai-2026/mlops-web:latest
+          docker build -t gcr.io/${{ vars.GCP_PROJECT_ID }}/mlops-web:latest -f Dockerfile.web .
+          docker push gcr.io/${{ vars.GCP_PROJECT_ID }}/mlops-web:latest
 
       - name: Deploy to GKE
         run: |
