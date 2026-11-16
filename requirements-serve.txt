@@ -3,6 +3,9 @@ pandas==2.2.2
 numpy==1.26.4
 joblib
 flask
-gunicorn
+gunicorn>=22.0.0
 streamlit
 requests
+pyarrow>=14.0.1
+setuptools>=80.10.0
+wheel>=0.46.2
