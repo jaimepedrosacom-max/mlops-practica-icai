@@ -41,7 +41,7 @@ def train_model(n_estimators):
         joblib.dump(model, 'model.pkl')
         mlflow.sklearn.log_model(
             sk_model=model,
-            artifact_path="random-forest-model",
+            name="random-forest-model",
             skops_trusted_types=["sklearn.tree._tree.Tree"]
         )
         mlflow.log_param("n_estimators", n_estimators)
